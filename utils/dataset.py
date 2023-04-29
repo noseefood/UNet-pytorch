@@ -55,8 +55,11 @@ class BasicDataset(Dataset):
         idx = self.ids[i]
         # mask_file = glob(self.masks_dir + '/' + idx + self.mask_suffix + '.*')
         # img_file = glob(self.imgs_dir + '/' + idx + '.*')
-        mask_file = os.path.join(self.masks_dir, '%s' % idx + self.mask_suffix + '.bmp')
-        img_file = os.path.join(self.imgs_dir, '%s' % idx + '.bmp')
+        # mask_file = os.path.join(self.masks_dir, '%s' % idx + self.mask_suffix + '.png')
+        # img_file = os.path.join(self.imgs_dir, '%s' % idx + '.png')
+        mask_file = os.path.join(self.masks_dir, idx+ '.png')
+        img_file = os.path.join(self.imgs_dir, idx + '.png')
+
 
         # XXX: 这里mask_file 应该是路径名
         # assert len(mask_file) == 1, \
@@ -86,7 +89,7 @@ class BasicDataset(Dataset):
         }
 
 if __name__ == '__main__':
-    data = BasicDataset('/Volumes/data/workspace/cv/Pytorch-UNet/data/imgs/', '/Volumes/data/workspace/cv/Pytorch-UNet/data/masks/')
+    data = BasicDataset('/home/xuesong/CAMP/segment/UNet-pytorch/data/imgs', '/home/xuesong/CAMP/segment/UNet-pytorch/data/masks')
     for n, i in enumerate(data):
         print(n)
 
