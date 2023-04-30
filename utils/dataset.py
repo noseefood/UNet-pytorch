@@ -7,6 +7,9 @@ import torch
 import cv2
 from torch.utils.data import Dataset
 import logging
+
+# import linecache  # 为了读取txt指定行
+
 _logger = logging.getLogger(__name__)
 
 from PIL import Image
@@ -18,9 +21,12 @@ class BasicDataset(Dataset):
         self.masks_dir = masks_dir
         self.scale = scale
         self.mask_suffix = mask_suffix
+
+        # self.index_path = index_path # 
+
         assert 0 < scale <= 1, 'Scale must be between 0 and 1'
 
-        self.ids = [splitext(file)[0] for file in listdir(imgs_dir)
+        self.ids = [splitext(file)[0] for file in listdir(imgs_dir)    # os.path.splitext(“文件路径”) 分离文件名与扩展名  读取imgs下的所有文件名
                     if not file.startswith('.')]
         _logger.info(f'Creating dataset with {len(self.ids)} examples')
 
@@ -53,11 +59,31 @@ class BasicDataset(Dataset):
 
     def __getitem__(self, i):
         idx = self.ids[i]
+        
         # mask_file = glob(self.masks_dir + '/' + idx + self.mask_suffix + '.*')
         # img_file = glob(self.imgs_dir + '/' + idx + '.*')
         # mask_file = os.path.join(self.masks_dir, '%s' % idx + self.mask_suffix + '.png')
         # img_file = os.path.join(self.imgs_dir, '%s' % idx + '.png')
-        mask_file = os.path.join(self.masks_dir, idx+ '.png')
+
+        
+
+        # mask_file = os.path.join(self.masks_dir, idx+ '.png')   # *(path, filename)
+        # img_file = os.path.join(self.imgs_dir, idx + '.png')
+
+        # masks_dir = self.masks_dir  #'/home/xuesong/CAMP/segment/UNet-pytorch/data/masks'
+        # imgs_dir = self.imgs_dir #'/home/xuesong/CAMP/segment/UNet-pytorch/data/imgs'
+
+        # mask_Name = linecache.getline(self.index_path, index)
+        # mask_Name = str.replace(mask_Name, '\n', '')
+        # img_Name = mask_Name
+
+        # mask_file = os.path.join(masks_dir, mask_Name + '.png')   # *(path, filename),注意getline会将最后的换行符号也读取进来
+        # img_file = os.path.join(imgs_dir, img_Name + '.png')
+
+
+
+
+        mask_file = os.path.join(self.masks_dir, idx + '.png')   # *(path, filename)
         img_file = os.path.join(self.imgs_dir, idx + '.png')
 
 
@@ -89,7 +115,7 @@ class BasicDataset(Dataset):
         }
 
 if __name__ == '__main__':
-    data = BasicDataset('/home/xuesong/CAMP/segment/UNet-pytorch/data/imgs', '/home/xuesong/CAMP/segment/UNet-pytorch/data/masks')
+    data = BasicDataset('/data1/volume1/data/xuesong/Tracking/UNet-pytorch/data/imgs', '/data1/volume1/data/xuesong/Tracking/UNet-pytorch/data/masks')
     for n, i in enumerate(data):
         print(n)
 
