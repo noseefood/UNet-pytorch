@@ -110,7 +110,7 @@ def mask_to_image(mask):
 
 if __name__ == "__main__":
     args = get_args()
-    in_files = args.input
+    in_files = args.input  # 输入图片的路径(包含多张图片的文件夹)
     out_files = get_output_filenames(args)
 
     net = UNet(n_channels=3, n_classes=1)
@@ -130,6 +130,8 @@ if __name__ == "__main__":
         # img2 = Image.open(fn)
         img = cv2.imread(fn)
         assert img is not None, "您输入的图片为空，或者损坏: %s" % fn
+
+        #? normalize
 
         mask = predict_img(net=net,
                            full_img=img,
