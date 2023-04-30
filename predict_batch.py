@@ -9,6 +9,10 @@ print("current_path: ", logger_path.resolve())
 conf = ConfigLoader(logger_path)
 _logger = logging.getLogger(__name__)
 
+
+import glob # Xuesong
+
+
 import os
 import numpy as np
 import cv2
@@ -58,7 +62,6 @@ def predict_img(net,
 
     return full_mask > out_threshold
 
-
 def get_args():
     parser = argparse.ArgumentParser(description='Predict masks from input images',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -70,9 +73,11 @@ def get_args():
 
     parser.add_argument('--output', '-o', metavar='INPUT', nargs='+',
                         help='Filenames of ouput images')
-    parser.add_argument('--viz', '-孙悟空会驾着七彩祥云来接我', action='store_true',
-                        help="Visualize the images as they are processed",
-                        default=False)
+    # parser.add_argument('--viz ', '-v', action='store_true',
+    #                     help="Visualize the images as they are processed",
+    #                     default=False)
+    parser.add_argument('--viz', '-v', action='store_true',
+                        help="Visualize the images as they are processed")
     parser.add_argument('--no-save', '-n', action='store_true',
                         help="Do not save the output masks",
                         default=False)
@@ -124,26 +129,44 @@ if __name__ == "__main__":
 
     _logger.info("Model loaded !")
 
-    for i, fn in enumerate(in_files):
-        _logger.info("\nPredicting image {} ...".format(fn))
 
-        # img2 = Image.open(fn)
-        img = cv2.imread(fn)
+    img_files = glob.glob('./data/test/*.png')
+    for img_file in img_files:
+        img = cv2.imread(img_file)
         assert img is not None, "您输入的图片为空，或者损坏: %s" % fn
-
         mask = predict_img(net=net,
                            full_img=img,
                            scale_factor=args.scale,
                            out_threshold=args.mask_threshold,
                            device=device)
 
-        if not args.no_save:
-            out_fn = out_files[i]
-            result = mask_to_image(mask)
-            result.save(out_files[i])
-
-            _logger.info("Mask saved to {}".format(out_files[i]))
-
         if args.viz:
-            _logger.info("Visualizing results for image {}, close to continue ...".format(fn))
+            _logger.info("Visualizing results for image")
             plot_img_and_mask(img, np.uint8(mask), 0.3)
+        
+
+
+
+    # for i, fn in enumerate(in_files):
+    #     _logger.info("\nPredicting image {} ...".format(fn))
+
+    #     # img2 = Image.open(fn)
+    #     img = cv2.imread(fn)
+    #     assert img is not None, "您输入的图片为空，或者损坏: %s" % fn
+
+    #     mask = predict_img(net=net,
+    #                        full_img=img,
+    #                        scale_factor=args.scale,
+    #                        out_threshold=args.mask_threshold,
+    #                        device=device)
+
+    #     if not args.no_save:
+    #         out_fn = out_files[i]
+    #         result = mask_to_image(mask)
+    #         result.save(out_files[i])
+
+    #         _logger.info("Mask saved to {}".format(out_files[i]))
+
+    #     if args.viz:
+    #         _logger.info("Visualizing results for image {}, close to continue ...".format(fn))
+    #         plot_img_and_mask(img, np.uint8(mask), 0.3)
