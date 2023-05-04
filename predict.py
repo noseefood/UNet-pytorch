@@ -29,14 +29,21 @@ def predict_img(net,
                 out_threshold=0.5):
     net.eval()
 
-    img = torch.from_numpy(BasicDataset.preprocess(full_img, scale_factor))
+    img = torch.from_numpy(BasicDataset.preprocess(full_img, scale_factor))  # 注意这里也跟训练一样进行了预处理(归一化)
     # h, w, c = full_img.shape
 
     img = img.unsqueeze(0)
     img = img.to(device=device, dtype=torch.float32)
 
     with torch.no_grad():
-        output = net(img)
+
+        trace_module = torch.jit.trace(net, img)  # for jit #
+
+        output = net(img)   # NN网络的直接相关只有这里
+ 
+        trace_module.save("data/models/traced_unet_model.pt") # for jit #
+        print("traced_unet_model.pt has saved.")
+        # print(trace_module.code) # for jit #
 
         if net.n_classes > 1:
             probs = F.softmax(output, dim=1)
