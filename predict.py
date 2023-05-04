@@ -31,6 +31,8 @@ def predict_img(net,
 
     img = torch.from_numpy(BasicDataset.preprocess(full_img, scale_factor))  # 注意这里也跟训练一样进行了预处理(归一化)
     # h, w, c = full_img.shape
+    # print(h,w,c)  # (219, 223, 3) 输入的数据尺度就有问题
+
 
     img = img.unsqueeze(0)
     img = img.to(device=device, dtype=torch.float32)
@@ -136,6 +138,8 @@ if __name__ == "__main__":
 
         # img2 = Image.open(fn)
         img = cv2.imread(fn)
+        print(img.shape)
+        
         assert img is not None, "您输入的图片为空，或者损坏: %s" % fn
 
         #? normalize

@@ -10,7 +10,7 @@ conf = ConfigLoader(logger_path)
 _logger = logging.getLogger(__name__)
 
 
-import glob # Xuesong
+# import glob # Xuesong
 
 
 import os
@@ -130,6 +130,7 @@ if __name__ == "__main__":
     _logger.info("Model loaded !")
 
 
+<<<<<<< HEAD
     img_files = glob.glob('./data/test/*.png')
     for img_file in img_files:
         img = cv2.imread(img_file)
@@ -139,10 +140,31 @@ if __name__ == "__main__":
                            scale_factor=args.scale,
                            out_threshold=args.mask_threshold,
                            device=device)
+=======
+>>>>>>> e76841683c8052bcb4160b73aed50256168c5c87
 
-        if args.viz:
-            _logger.info("Visualizing results for image")
-            plot_img_and_mask(img, np.uint8(mask), 0.3)
+    path = './data/test/'
+    files = os.listdir(path) 
+    for i, file in enumerate(files):
+        if file.endswith('.png'):
+            imgName = os.path.join(path, file)  
+
+    # img_files = glob.glob('./data/test/*.png')
+    # for img_file in img_files:
+            img = cv2.imread(imgName)
+            print("img's size", img.shape)
+            assert img is not None, "您输入的图片为空，或者损坏: %s" % fn
+            mask = predict_img(net=net,
+                            full_img=img,
+                            scale_factor=args.scale,
+                            out_threshold=args.mask_threshold,
+                            device=device)
+
+            print("mask's size", mask.shape) #没有问题，与img保持一致
+
+            if args.viz:
+                _logger.info("Visualizing results for image")
+                plot_img_and_mask(img, np.uint8(mask), 0.3)  # 这个可视化函数有问题
         
 
 
