@@ -42,13 +42,10 @@ class BasicDataset(Dataset):
         self.transform = A.Compose([
                     A.HorizontalFlip(p=0.5),
                     A.VerticalFlip(p=0.5),
-                    A.RandomRotate90(p=0.5),
-                    A.RandomBrightnessContrast(p=0.2),
-                    A.OneOf([
-                        # 高斯噪点
-                        A.IAAAdditiveGaussianNoise(),
-                        A.GaussNoise(),], p=0.2),
-                    
+                    A.ShiftScaleRotate(shift_limit=0.2, scale_limit=0.2, rotate_limit=30, p=0.5),
+                    # A.SafeRotate(p=0.5),  # 注意这里必须采用SafeRotate，否则会导致图片尺寸变化然后在batch中出错:还是取消了，存在一些问题
+                    A.RandomBrightnessContrast(brightness_limit=0.3, contrast_limit=0.3, p=0.5),
+                    A.GaussNoise(p=0.2),
                 ])
 
     def __len__(self):
@@ -74,7 +71,7 @@ class BasicDataset(Dataset):
         if len(img_nd.shape) == 2:
             img_nd = np.expand_dims(img_nd, axis=2)
 
-        # HWC to CHW
+        # HWC to CHW for Tensor
         img_trans = img_nd.transpose((2, 0, 1))
         
         # 归一化(normalize) 0-1
