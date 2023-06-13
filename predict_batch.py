@@ -130,21 +130,9 @@ if __name__ == "__main__":
     _logger.info("Model loaded !")
 
 
-<<<<<<< HEAD
-    img_files = glob.glob('./data/test/*.png')
-    for img_file in img_files:
-        img = cv2.imread(img_file)
-        assert img is not None, "您输入的图片为空，或者损坏: %s" 
-        mask = predict_img(net=net,
-                           full_img=img,
-                           scale_factor=args.scale,
-                           out_threshold=args.mask_threshold,
-                           device=device)
-=======
->>>>>>> e76841683c8052bcb4160b73aed50256168c5c87
-
     path = './data/test/'
     files = os.listdir(path) 
+    files.sort()
     for i, file in enumerate(files):
         if file.endswith('.png'):
             imgName = os.path.join(path, file)  

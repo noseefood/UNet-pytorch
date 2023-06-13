@@ -10,9 +10,13 @@ import logging
 
 # import linecache  # 为了读取txt指定行
 
+# TODO：写入数据增强的代码
+
 _logger = logging.getLogger(__name__)
 
 from PIL import Image
+
+import random
 
 
 class BasicDataset(Dataset):
@@ -26,7 +30,7 @@ class BasicDataset(Dataset):
 
         assert 0 < scale <= 1, 'Scale must be between 0 and 1'
 
-        self.ids = [splitext(file)[0] for file in listdir(imgs_dir)    # os.path.splitext(“文件路径”) 分离文件名与扩展名  读取imgs下的所有文件名
+        self.ids = [splitext(file)[0] for file in listdir(imgs_dir)    # os.path.splitext(“文件路径”) 分离文件名与扩展名  会自动读取imgs下的所有文件的名称
                     if not file.startswith('.')]
         _logger.info(f'Creating dataset with {len(self.ids)} examples')
 
@@ -54,39 +58,17 @@ class BasicDataset(Dataset):
         img_trans = img_nd.transpose((2, 0, 1))
         
         if img_trans.max() > 1:
-            img_trans = img_trans / 255  # 归一化(normalize)
+            img_trans = img_trans / 255  # 归一化(normalize) 0-1
 
         return img_trans
 
     def __getitem__(self, i):
-        idx = self.ids[i]
-        
-        # mask_file = glob(self.masks_dir + '/' + idx + self.mask_suffix + '.*')
-        # img_file = glob(self.imgs_dir + '/' + idx + '.*')
-        # mask_file = os.path.join(self.masks_dir, '%s' % idx + self.mask_suffix + '.png')
-        # img_file = os.path.join(self.imgs_dir, '%s' % idx + '.png')
+        # 根据index读取图片
 
-        
-
-        # mask_file = os.path.join(self.masks_dir, idx+ '.png')   # *(path, filename)
-        # img_file = os.path.join(self.imgs_dir, idx + '.png')
-
-        # masks_dir = self.masks_dir  #'/home/xuesong/CAMP/segment/UNet-pytorch/data/masks'
-        # imgs_dir = self.imgs_dir #'/home/xuesong/CAMP/segment/UNet-pytorch/data/imgs'
-
-        # mask_Name = linecache.getline(self.index_path, index)
-        # mask_Name = str.replace(mask_Name, '\n', '')
-        # img_Name = mask_Name
-
-        # mask_file = os.path.join(masks_dir, mask_Name + '.png')   # *(path, filename),注意getline会将最后的换行符号也读取进来
-        # img_file = os.path.join(imgs_dir, img_Name + '.png')
-
-
-
-
-        mask_file = os.path.join(self.masks_dir, idx + '.png')   # *(path, filename)
+        idx = self.ids[i] # 图片的名称
+    
+        mask_file = os.path.join(self.masks_dir, idx + '.png')   # *(path, filename)  我们使用了相同名字的imgs和masks文件
         img_file = os.path.join(self.imgs_dir, idx + '.png')
-
 
         # XXX: 这里mask_file 应该是路径名
         # assert len(mask_file) == 1, \
@@ -105,7 +87,14 @@ class BasicDataset(Dataset):
             f'Image 和 mask {idx} 应该有相同的大小, 但这里img是： {img.shape}， mask是： {mask.shape}'
 
         img = self.preprocess(img, self.scale)
-        mask = self.preprocess(mask, self.scale, gray=True)
+        mask = self.preprocess(mask, self.scale, gray=True)  # 这里可以强制图片转换为灰度图再输入网络，并且进行了归一化
+
+        ############# data augmentation #############
+        # flipCode = random.choice([-1, 0, 1, 2])  # 随机进行数据增强，为2时不做处理
+        # if flipCode != 2:
+        #     img = self.augment(img, flipCode)
+        #     mask = self.augment(mask, flipCode)
+        #############################################
 
         assert img.shape[1] == mask.shape[1], 'img and mask must have same height   %s' % idx
         assert img.shape[2] == mask.shape[2], 'img and mask must have same width    %s' % idx
@@ -114,6 +103,11 @@ class BasicDataset(Dataset):
             'image': torch.from_numpy(img).type(torch.FloatTensor),
             'mask': torch.from_numpy(mask).type(torch.FloatTensor)
         }
+    
+    # def augment(self, image, flipCode):
+    #     # 使用cv2.flip进行数据增强，filpCode为1水平翻转，0垂直翻转，-1水平+垂直翻转
+    #     flip = cv2.flip(image, flipCode)
+    #     return flip
 
 if __name__ == '__main__':
     data = BasicDataset('/data1/volume1/data/xuesong/Tracking/UNet-pytorch/data/imgs', '/data1/volume1/data/xuesong/Tracking/UNet-pytorch/data/masks')
