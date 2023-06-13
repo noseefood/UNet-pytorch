@@ -2,3 +2,5 @@ python3 predict_batch.py -i data/test/Patient-01-15 158.png -m checkpoints/CP_ep
 
 目前的test是基于pork15
 
+
+tensorboard --logdir=runs

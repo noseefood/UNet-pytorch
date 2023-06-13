@@ -23,6 +23,8 @@ from unet import UNet
 from utils.dataset import BasicDataset
 from torch.utils.data import DataLoader, random_split
 
+from torch.utils.tensorboard import SummaryWriter 
+
 base = Path(os.environ['raw_data_base']) if 'raw_data_base' in os.environ.keys() else Path('./data')
 assert base is not None, "Please assign the raw_data_base(which store the training data) in system path "
 dir_img = base / 'imgs'
@@ -38,6 +40,9 @@ def train_net(net,
               val_percent=0.1,
               save_cp=True,
               img_scale=0.5):
+    
+
+    writer = SummaryWriter() # 用于记录训练过程的信息，然后在tensorboard中显示出来
 
     dataset = BasicDataset(str(dir_img.resolve()), str(dir_mask.resolve()), img_scale)
     n_val = int(len(dataset) * val_percent)
@@ -112,6 +117,19 @@ def train_net(net,
                     else:
                         _logger.info('Validation Dice Coeff: {}'.format(val_score))
 
+                    # tensorboard
+                    writer.add_scalar("Validation Dice Coeff: ",val_score, global_step)
+                    writer.add_images('images', imgs, global_step)  # 注意这里有可能会报错，有可能有多张图片
+                    writer.add_images('masks', true_masks, global_step)
+
+
+
+        writer.add_scalar("Epoch Loss: ",epoch_loss, epoch)
+            
+
+
+                    
+
         if save_cp:
             try:
                 os.mkdir(dir_checkpoint)
@@ -144,10 +162,12 @@ def get_args():
 
 
 if __name__ == '__main__':
+
+    
+
     args = get_args()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     _logger.info(f'Using device {device}')
-
     # 根据自己的数据进行调整
     # n_channels: 图片通道数，RGB彩色图片为3
     # n_classes: 每个像素的可能概率（候选）
