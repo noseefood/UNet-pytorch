@@ -42,7 +42,7 @@ class BasicDataset(Dataset):
         self.transform = A.Compose([
                     A.HorizontalFlip(p=0.5),
                     A.VerticalFlip(p=0.5),
-                    A.ShiftScaleRotate(shift_limit=0.2, scale_limit=0.2, rotate_limit=30, p=0.5),
+                    # A.ShiftScaleRotate(shift_limit=0.2, scale_limit=0.2, rotate_limit=30, p=0.5), # 不要启用，因为可能会让画面中出现两根needle线条，得不偿失！
                     # A.SafeRotate(p=0.5),  # 注意这里必须采用SafeRotate，否则会导致图片尺寸变化然后在batch中出错:还是取消了，存在一些问题
                     A.RandomBrightnessContrast(brightness_limit=0.3, contrast_limit=0.3, p=0.5),
                     A.GaussNoise(p=0.2),
